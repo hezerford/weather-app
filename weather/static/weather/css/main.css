@@ -1,0 +1,52 @@
+body {
+    font-family: 'Raleway', sans-serif;
+    font-size: 24px;
+    margin: 0;
+    color: #fff;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-image: url('/static/weather/img/main.jpg');
+}
+
+.main-app {
+    margin: 0;
+    color: #fff;
+}
+
+.nav {
+    color: #fff;
+    border: none;
+    margin: 0;
+    padding-top: 16px;
+}
+
+.nav span {
+    color: #fff;
+}
+
+.city-input {
+    border: 1px solid #fff;
+    background: rgba(244, 241, 241, 0.6);
+    transition: 0.3s;
+    border: none;
+    border-radius: 10px;
+    color: black;
+    margin-bottom: 20px;
+    padding: 0;
+    padding-left: 10px;
+    min-height: 50px;
+    font-size: 20px;
+}
+
+.nav nav a {
+    color: #fff;
+}
+
+.btn-danger {
+    font-size: 20px;
+}
+
+.alert a {
+    border-radius: 10px;
+}

@@ -28,24 +28,35 @@
             <div class="row">
                 <div class="col offset-1">
                     <h1>Узнать погоду</h1>
-                    <form action="/" method="GET">
+                    <form action="/" method="POST">
+                        {% csrf_token %}
                         <input type="text" id="city" class="form-control city-input mt-4" name="city" placeholder="Введите название города">
                         <input type="submit" name="send" value="Узнать" class="mt-2 btn btn-danger justify-content-center">
                     </form>
                 </div>
                 <div class="col offset-1">
-                    <h1>Информация</h1>
-    
+                    <h1>Температура в {{ city_info|length }} 
+                        {% if city_info|length == 1 %}
+                            городе
+                        {% elif city_info|length >= 2 and city_info|length <= 4 %}
+                            городах
+                        {% else %}
+                            городах
+                        {% endif %}
+                    </h1>
                     {% for info in city_info %}
                     <div class="alert alert-info">
                         <div class="row align-items-center">
                             <div class="col-8">
                                 <b>Город:</b> {{info.city}}<br>
-                                <b>Температура:</b> {{info.temp}}°<br>
+                                <b>Температура:</b> {{info.temp}}°C<br>
                             </div>
                             <div class="col-3 offset-1 d-flex justify-content-center flex-column">
                                 <img src="http://openweathermap.org/img/w/{{info.icon}}.png" alt="Фото погоды"class="align-self-center">
-                                <a href="{% url 'delete_city' city_id=info.id %}" class="d-flex btn btn-danger btn-sm d-flex  justify-content-center">Удалить</a>
+                                <form action="{% url 'delete_city' info.id %}" method='POST'>
+                                    {% csrf_token %}
+                                    <button type="submit" class="d-flex btn btn-danger btn-sm d-flex justify-content-center">Удалить</button>
+                                </form>
                             </div>
                         </div>
                     </div>

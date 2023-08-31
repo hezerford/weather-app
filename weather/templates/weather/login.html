@@ -1,0 +1,21 @@
+{% extends 'weather/index.html' %}
+{% block content %}
+
+<div class="header-bar">
+    <h1>Войти</h1>
+</div>
+
+<div style="max-width: 650px;" class="container">
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="login-form">
+                {{form.as_p}}
+            </div>
+            <input class="btn btn-light" type="submit" value="Войти"> 
+        </form>
+        <p>У вас нет аккаунта? <a class="text-white" href="{% url 'register' %}">Зарегистрироваться</a></p>
+    </div>
+</div>
+
+{% endblock content %}

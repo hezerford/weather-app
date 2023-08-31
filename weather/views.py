@@ -1,14 +1,45 @@
 import requests
-from django.views.generic import ListView, DeleteView, View
+from django.views.generic import ListView, DeleteView, View, FormView
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from .models import City
 from googletrans import Translator
 
-class CityListView(ListView):
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+
+class CustomLoginView(LoginView):
+    template_name = 'weather/login.html'
+    fields = '__all__'
+    redirect_authenticated_user = True
+
+    def get_success_url(self):
+        return reverse_lazy('weather')
+
+class RegisterPage(FormView):
+    template_name = 'weather/register.html'
+    form_class = UserCreationForm
+    redirect_authenticated_user = True
+    success_url = reverse_lazy('weather')
+
+    def form_valid(self, form):
+        user = form.save()
+        if user is not None:
+            login(self.reguest, user)
+        return super().form_valid(form)
+
+    def get(self, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            return redirect('weather')
+        return super(RegisterPage, self).get(*args, **kwargs)
+        
+class CityListView(LoginRequiredMixin, ListView):
     model = City
-    template_name = 'weather/index.html'
+    template_name = 'weather/main.html'
     context_object_name = 'city_info'
+    login_url = None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -37,16 +68,17 @@ class CityListView(ListView):
     def post(self, request, *args, **kwargs):
         city_name = request.POST.get('city')
         if city_name:
-            City.objects.create(name=city_name)
+            City.objects.create(user=request.user, name=city_name)
         return redirect('weather')
 
-
-class CityDeleteView(View):
+class CityDeleteView(LoginRequiredMixin, View):
 
     def post(self, request, pk, *args, **kwargs):
         city = City.objects.get(pk=pk)
-        city.delete()
+        if city.user == request.user:
+            city.delete()
         return redirect('weather')
+
 '''
 def index(request):
     if request.method == 'GET':

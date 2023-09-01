@@ -22,12 +22,12 @@ class RegisterPage(FormView):
     template_name = 'weather/register.html'
     form_class = UserCreationForm
     redirect_authenticated_user = True
-    success_url = reverse_lazy('weather')
+    success_url = reverse_lazy('login')
 
     def form_valid(self, form):
         user = form.save()
         if user is not None:
-            login(self.reguest, user)
+            login(self.request, user)
         return super().form_valid(form)
 
     def get(self, *args, **kwargs):
@@ -39,7 +39,10 @@ class CityListView(LoginRequiredMixin, ListView):
     model = City
     template_name = 'weather/main.html'
     context_object_name = 'city_info'
-    login_url = None
+    login_url = '/login/'
+
+    def get_queryset(self):
+        return City.objects.filter(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -47,8 +50,16 @@ class CityListView(LoginRequiredMixin, ListView):
         city_info = []
         translator = Translator()
 
-        for city in context['city_info']:
-            url = f'https://api.openweathermap.org/data/2.5/weather?q={city.name}&units=metric&appid={api_key}'
+        for city in self.object_list: # Используйте self.object_list для доступа к городам из базы данных
+            temperature_unit = city.temperature_unit
+            units = 'metric'
+            
+            if temperature_unit == 'F':
+                units = 'imperial'
+            elif temperature_unit == 'K':
+                units = 'standard'
+
+            url = f'https://api.openweathermap.org/data/2.5/weather?q={city.name}&units={units}&appid={api_key}'
             response = requests.get(url).json()
             if response.get('cod') == 200:
                 city_name_en = response['name']
@@ -58,6 +69,7 @@ class CityListView(LoginRequiredMixin, ListView):
                     'id': city.id,
                     'city': city_name_ru,
                     'temp': response['main']['temp'],
+                    'temp_unit': temperature_unit,
                     'icon': response['weather'][0]['icon'],
                 }
                 city_info.append(city_data)
@@ -68,7 +80,7 @@ class CityListView(LoginRequiredMixin, ListView):
     def post(self, request, *args, **kwargs):
         city_name = request.POST.get('city')
         if city_name:
-            City.objects.create(user=request.user, name=city_name)
+            new_city = City.objects.create(user=request.user, name=city_name, temperature_unit=request.POST.get('temperature_unit', 'C'))
         return redirect('weather')
 
 class CityDeleteView(LoginRequiredMixin, View):

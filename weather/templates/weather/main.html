@@ -18,6 +18,11 @@
                 <form action="/" method="POST">
                     {% csrf_token %}
                     <input type="text" id="city" class="form-control city-input mt-4" name="city" placeholder="Введите название города">
+                    <select name="temperature_unit">
+                        <option value="C">Цельсий (°C)</option>
+                        <option value="F">Фаренгейт (°F)</option>
+                        <option value="K">Кельвин (K)</option>
+                    </select>
                     <input type="submit" name="send" value="Узнать" class="mt-2 btn btn-danger justify-content-center">
                 </form>
             </div>
@@ -36,7 +41,14 @@
                     <div class="row align-items-center">
                         <div class="col-8">
                             <b>Город:</b> {{info.city}}<br>
-                            <b>Температура:</b> {{info.temp}}°C<br>
+                            <b>Температура:</b> 
+                            {% if info.temp_unit == 'C' %}
+                                {{ info.temp }}°C
+                            {% elif info.temp_unit == 'F' %}
+                                {{ info.temp }}°F
+                            {% elif info.temp_unit == 'K' %}
+                                {{ info.temp }}K
+                            {% endif %}
                         </div>
                         <div class="col-3 offset-1 d-flex justify-content-center flex-column">
                             <img src="http://openweathermap.org/img/w/{{info.icon}}.png" alt="Фото погоды"class="align-self-center">

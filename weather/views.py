@@ -10,6 +10,8 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 
+from decouple import config
+
 
 class CustomLoginView(LoginView):
     template_name = "weather/login.html"
@@ -49,7 +51,7 @@ class CityListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        api_key = "7c668fe63f7660d8e1fb8dbea1eb6d01"  # your api
+        api_key = config("API_KEY")  # Ваш API
         city_info = []
         translator = Translator()
 
